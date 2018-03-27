@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void piping(char*, char*, int);
+void piping(char*);
 
 
 
@@ -37,10 +37,10 @@ int main() {
 	   	cin.getline(linea, 50);
 	   	for (int i = 0; i < 50; ++i){
 	   		if(linea[i] == '|'){
-	   			comandos = strtok(linea, "|");
-	   			comandos2 = strtok(NULL, "\n");
-	   			cout << comandos << endl;
-	   			piping(comandos, comandos2, 2);
+	   			// comandos = strtok(linea, "|");
+	   			// comandos2 = strtok(NULL, "\n");
+	   			// cout << comandos << endl;
+	   			piping(linea);
 	   		}
 	   	}
 	   	comando = strtok(linea," ");	  
@@ -77,28 +77,36 @@ int main() {
 }
 
 
-void piping(char* commands1, char* commands2, int size){
+void piping(char* commands){
 	int fds[2];
 	pipe(fds);
 	pid_t pid;
 	char** c1;
 	char** c2;
-	cout << "Antes de commands" <<endl;
-	c1[0] = strtok(commands1, " ");
+	char** c3;
+	c1[0] = strsep(&commands, " ");
+	c1[1] = strsep(&commands, " ");
 	cout <<"C1:0 - "<< c1[0] << endl;
-	c1[1] = strtok(NULL, " ");
 	cout <<"C1:1 - "<< c1[1] << endl;
+	strsep(&commands, "|");
+	cout << commands << endl;
+	cout << "Parse | "<<endl;
+	c1[2] = strsep(&commands, " ");
+	cout <<"C1:2 - "<< c1[2] << endl;
 
-	cout << commands2 << endl;
-	// commands2 = commands2 + 1;
-	c2[0] = strtok(commands2, " ");
-	if(c2[0]){	
-		cout <<"C2:0 - "<< c2[0] << endl;
-	}else{
-		cout<<"Neles"<<endl;
-	}
-	c2[1] = strtok(NULL, " ");
-	cout <<"C2:1 - "<< c2[1] << endl;
+	c1[3] = strsep(&commands, " ");
+	cout <<"C1:3 - "<< c1[3] << endl;
+	
+	// size_t destination_size = sizeof (c1[0]);
+	strcpy(c2[0], c1[0]);
+	strcpy(c2[1], c1[1]);
+	strcpy(c3[0], c1[2]);
+	strcpy(c3[1], c1[3]);
+	cout << "---------" <<endl;
+	cout << c2[0] << endl;
+	cout << c2[1] << endl;
+	cout << c3[0] << endl;
+	cout << c3[1] << endl;
 	
 	if (fork() == 0) {
     // Reassign stdin to fds[0] end of pipe.
