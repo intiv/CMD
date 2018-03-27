@@ -5,11 +5,18 @@
 #include <stdio.h>
 #include <string.h>
 
+
 using namespace std;
+
+void piping(char**, int);
+
+
 
 int main() { 
 	int status;
-	char linea[20];
+
+	char linea[50];
+	char **comandos;
 	char *comando;
 	char *param;
 	char *oper;
@@ -25,6 +32,13 @@ int main() {
 	   	param = NULL;		
 	   	memset(linea, 0, sizeof(linea));
 	   	cin.getline(linea, 50);
+	   	for (int i = 0; i < 50; ++i){
+	   		if(linea[i] == '|'){
+	   			comandos[1] = strtok(linea, "|");
+	   			comandos[2] = strtok(NULL, "\n");
+	   			piping(comandos, 2);
+	   		}
+	   	}
 	   	comando = strtok(linea," ");	  
 	   	param = strtok(NULL," ");
 	   	oper = strtok(NULL, " ");
@@ -45,7 +59,6 @@ int main() {
 				fclose(fd1);
 			}	   		
 	   	}else if(strcmp(comando, "cd") == 0){
-	   		cout << "Case cd" << endl;
 	   		if(chdir(param) < 0) {
 	   			cout<< "Error cd" <<endl;
 	   		}
@@ -57,4 +70,45 @@ int main() {
 	}
 
 	return 0;
+}
+
+
+void piping(char** commands, int size){
+	int fds[2];
+	pipe(fds);
+	pid_t pid;
+	char* c1[2];
+	char* c2[2];
+	cout << "Antes de commands" <<endl;
+	
+	
+	if (fork() == 0) {
+    // Reassign stdin to fds[0] end of pipe.
+	    dup2(fds[0], 0);
+
+	    // Not going to write in this child process, so we can close this end
+	    // of the pipe.
+	    close(fds[1]);
+
+	    // Execute the second command.
+	    execvp(c2[0], c2);
+	    perror("execlp failed");
+
+  // child process #2
+  	} else if ((pid = fork()) == 0) {
+    // Reassign stdout to fds[1] end of pipe.
+	    dup2(fds[1], 1);
+
+	    // Not going to read in this child process, so we can close this end
+	    // of the pipe.
+	    close(fds[0]);
+
+	    // Execute the first command.
+	    execvp(c1[0], c1);
+	    perror("execlp failed");
+
+  // parent process
+  } else
+    waitpid(pid, NULL, 0);
+
 }
