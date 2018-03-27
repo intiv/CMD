@@ -4,13 +4,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <vector>
 
+#define die(e) do { fprintf(stderr, "%s\n", e); exit(EXIT_FAILURE); } while (0);
 
 using namespace std;
 
-void piping(char*);
-char* appendCharToCharArray(char*, char);
-
+void piping(char**, char**);
+void parseCommand(string, string , vector<string>*, char** *);
 
 int main() {
 	int status;
@@ -18,6 +19,8 @@ int main() {
 	char linea[50];
 	char *comandos;
 	char *comandos2;
+	char *params;
+	char *params2;
 	char *comando;
 	char *param;
 	char *oper;
@@ -25,7 +28,7 @@ int main() {
 	int pid;
 	FILE *fd,*fd1;
 	char c;
-
+	vector<string> viktor;
 	while (1) {
 
 		cout << ">";
@@ -35,14 +38,78 @@ int main() {
 		fflush(stdin);
 	   	memset(linea, 0, sizeof(linea));
 	   	cin.getline(linea, 50);
-	   	for (int i = 0; i < 50; ++i){
-	   		if(linea[i] == '|'){
-	   			// comandos = strtok(linea, "|");
-	   			// comandos2 = strtok(NULL, "\n");
-	   			// cout << comandos << endl;
-	   			piping(linea);
-	   		}
-	   	}
+
+	   	/*********************************
+	   	 *	INICIO PARTE DEL PIPE        *
+	   	 *********************************/
+	   	string comandoCadena(linea);
+	   	string delim = "|";
+	   	parseCommand(comandoCadena, delim, &viktor, NULL);
+
+
+	   	vector<string> parsed;
+	   	vector<string> parsed2;
+	   	delim = " ";
+	   	//parseo de comandos
+	   	parseCommand(viktor.at(0), delim, &parsed, NULL);
+	   	parseCommand(viktor.at(1), delim, &parsed2, NULL);
+
+	   	comandos = new char[parsed.at(0).length() + 1];
+	   	strcpy(comandos, parsed.at(0).c_str());
+	   	params = new char[parsed.at(1).length() + 1];
+	   	strcpy(params, parsed.at(1).c_str());
+
+
+	   	comandos2 = new char[parsed2.at(0).length() + 1];
+	   	strcpy(comandos2, parsed2.at(0).c_str());
+	   	params2 = new char[parsed2.at(1).length() + 1];
+	   	strcpy(params2, parsed2.at(1).c_str());
+
+	   	// cout << comandos << endl;
+	   	// cout << params << endl;
+	   	// cout << "-------"<<endl;
+	   	// cout << comandos2 << endl;
+	   	// cout << params2 << endl;
+
+	   	//pipe 
+	   	int zelda[2];
+	   	pid_t pid;
+	   	char foo[4096];
+
+	   	cout<<"-------------"<<endl;
+	   	if(pipe(zelda) == -1)
+	   		die("pipe");
+
+	   	if ((pid = fork()) == -1)
+    		die("fork");
+
+    	if(pid == 0) {
+    		dup2 (zelda[1], STDOUT_FILENO);
+		    close(zelda[0]);
+		    close(zelda[1]);
+		    execlp(comandos, comandos, params, (char *)0);
+		    
+		    die("execlp");
+    	}else{
+    		close(zelda[1]);
+		    int nbytes = read(zelda[0], foo, sizeof(foo));
+		    printf("Output: (%.*s)\n", nbytes, foo);
+		    wait(NULL);
+		    execlp(comandos2, comandos2, foo, params2, (char*) 0);
+
+
+    	}
+    	/*********************************
+	   	 *	FIN PARTE DEL PIPE           *
+	   	 *********************************/
+	   	
+	   	// for (int i = 0; i < viktor.size(); ++i)
+	   	// {
+	   	// 	if(i == 0)
+	   	// 		parseCommand(viktor.at(i), delim, NULL, &comandos);
+	   	// 	else
+	   	// 		parseCommand(viktor.at(i), delim, NULL, &comandos2);
+	   	// }
 	   	comando = strtok(linea," ");
 	   	param = strtok(NULL," ");
 	   	oper = strtok(NULL, " ");
@@ -67,7 +134,7 @@ int main() {
 	   			cout<< "Error cd" <<endl;
 	   		}
 	   	}else if ((pid = fork()) == 0) {
-			execlp(comando, comando, param, NULL);
+			// execlp(comando, comando, param, NULL);
 	   	}else if((pid = fork())!=0){
 	   		wait(NULL);
 	   	}
@@ -77,32 +144,32 @@ int main() {
 }
 
 
-void piping(char* commands){
+void piping(char** firstCommand, char** secondCommand){
 	int fds[2];
 	pipe(fds);
 	pid_t pid;
-	char** firstCommand;
-	char** secondCommand;
-	int counter = 0;
-	char* temporary;
-	for (size_t i = 0; i < strlen(commands); i++) {
-		if (commands[i] != '|') {
-			if (commands[i] == ' ') {
-				counter++;
-			} else {
-				temporary[0] = commands[i];
-				if (counter == 0) {
-					firstCommand[0] = appendCharToCharArray(firstCommand[0],commands[i]);
-				} else if (counter == 1) {
-					firstCommand[1] = appendCharToCharArray(firstCommand[1],commands[i]);
-				} else if (counter == 2) {
-					secondCommand[0] = appendCharToCharArray(secondCommand[0],commands[i]);
-				} else if (counter == 3) {
-					secondCommand[1] = appendCharToCharArray(secondCommand[1],commands[i]);
-				}
-			}
-		}
-	}
+	// char** firstCommand;
+	// char** secondCommand;
+	// int counter = 0;
+	// char* temporary;
+	// for (size_t i = 0; i < strlen(commands); i++) {
+	// 	if (commands[i] != '|') {
+	// 		if (commands[i] == ' ') {
+	// 			counter++;
+	// 		} else {
+	// 			temporary[0] = commands[i];
+	// 			if (counter == 0) {
+	// 				firstCommand[0] = appendCharToCharArray(firstCommand[0],commands[i]);
+	// 			} else if (counter == 1) {
+	// 				firstCommand[1] = appendCharToCharArray(firstCommand[1],commands[i]);
+	// 			} else if (counter == 2) {
+	// 				secondCommand[0] = appendCharToCharArray(secondCommand[0],commands[i]);
+	// 			} else if (counter == 3) {
+	// 				secondCommand[1] = appendCharToCharArray(secondCommand[1],commands[i]);
+	// 			}
+	// 		}
+	// 	}
+	// }
 	// c1[0] = strsep(&commands, " ");
 	// c1[1] = strsep(&commands, " ");
 	// cout <<"C1:0 - "<< c1[0] << endl;
@@ -158,11 +225,35 @@ void piping(char* commands){
 
 }
 
-char* appendCharToCharArray(char* array, char a) {
-	size_t len = strlen(array);
-	char* ret = new char[len+2];
-	strcpy(ret, array);
-	ret[len] = a;
-	ret[len+1] = '\0';
-	return ret;
+void parseCommand(string commandString, string delim, vector<string>* viktor, char** *arreglo) {
+	size_t pos = 0;
+	string token;
+	char** retVal;
+	int cont = 0;
+	// if(delim != " "){
+	   	
+	   	while((pos = commandString.find(delim)) != string::npos){
+	   		token = commandString.substr(0, pos);
+	   		viktor->push_back(token);
+	   		commandString.erase(0, pos + delim.length());
+	   	}
+	   	viktor->push_back(commandString);
+	   	// return NULL;
+   // }else{
+   // 		cout << "Antes de empezar" <<endl;
+   // 		while((pos = commandString.find(delim)) != string::npos){
+	  //  		token = commandString.substr(0, pos);
+	  //  		// *(arreglo[cont]) = (char*) alloca(token.length() + 1);
+	  //  		// memcpy(*(arreglo[cont]), token.c_str(), token.size() + 1);
+	  //  		*(arreglo[cont]) = new char[token.length() + 1];
+	  //  		strcpy(*(arreglo[cont]), token.c_str());
+	  //  		cout << "Prueba" <<endl;
+	  //  		cont++;
+	  //  		commandString.erase(0, pos + delim.length());
+	  //  	}
+	  //  	cout << "Antes del ultimo"<<endl;
+	  //  	// *(arreglo[cont]) = (char*) alloca(commandString.size() + 1);
+	  //  	// memcpy(*(arreglo[cont]), commandString.c_str(), commandString.size() + 1);
+	  //  	// return &retVal;
+   // }
 }
