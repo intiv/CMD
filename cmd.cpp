@@ -14,6 +14,7 @@ using namespace std;
 void piping(char**, char**);
 void parseCommand(string, string , vector<string>*, char** *);
 char** parseCommand2 (string);
+void redirect(char**);
 
 int main() {
 	int status;
@@ -32,6 +33,7 @@ int main() {
 	FILE *fd,*fd1;
 	char c;
 	bool isPipe;
+	bool isRedirect;
 	bool piped = false;
 	vector<string> viktor;
 
@@ -40,8 +42,7 @@ int main() {
 
 	while (1) {
 
-		
-		
+		isRedirect = false;
 		isPipe = false;
 		cout << ">";
 	   	comando = NULL;
@@ -62,6 +63,10 @@ int main() {
 	   		for (int i = 0; i < 50; ++i){
 		   		if (linea[i]  == '|'){
 		   			isPipe = true;
+		   			break;
+		   		}else if (linea[i] == '>'){
+		   			isRedirect = true;
+		   			break;
 		   		}
 		   	}
 	   	}
@@ -164,6 +169,47 @@ int main() {
 	   	// 	else
 	   	// 		parseCommand(viktor.at(i), delim, NULL, &comandos2);
 	   	// }
+	   	}else if(isRedirect){
+			
+	   		char** commandArray = new char*[4];
+
+			char* commandRedirect;
+	   		char* argumentRedirect; 
+	   		char* operatorType;
+	   		char* fileName;
+
+	   		commandRedirect =  strtok(linea, " ");
+	   		argumentRedirect =  strtok(NULL	, " ");
+	   		operatorType = strtok(NULL	, " ");
+
+	   		if (argumentRedirect[0] == '>' || argumentRedirect[0] == '2' ){
+	   			
+	   			commandArray[0] = commandRedirect;
+	   			commandArray[1] = argumentRedirect;
+	   			commandArray[2] = operatorType;
+	   			
+
+
+	   		
+
+	   		}else {
+				fileName = strtok(NULL	, " ");	   			
+	   			commandArray[0] = commandRedirect;
+	   			commandArray[1] = argumentRedirect;
+	   			commandArray[2] = operatorType;
+	   			commandArray[3] = fileName;
+	   		}
+	   		//inicio de la funcion redirect
+	   		redirect(commandArray);
+
+
+
+
+	   		
+	   		//liberando espacio
+	   		delete commandArray;
+
+
 	   	}else{
 	   		if (!tempLinea.empty()){
 	   			comando = strtok(linea," ");
@@ -243,6 +289,17 @@ void piping(char** cmd1, char** cmd2){
 		// parent process
 	} //else
 	    // waitpid(pid, NULL, 0);
+}
+
+
+void redirect(char** commands){
+	if (commands[3] == NULL){
+		cout<< "tamalo"<<endl;
+		//ejecutar redirect con el comando, operador y el archivo
+	}else{
+		cout<< "tabueno"<<endl;
+		//ejecutar redirect con el comando, argumento, operador y el archivo
+	}
 }
 
 
