@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <iostream>
+#include <sstream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -70,7 +71,7 @@ int main() {
 		   		}
 		   	}
 	   	}
-		   	
+
 
 	   	if (isPipe){
 	   		piped =true;
@@ -131,7 +132,7 @@ int main() {
 		   	// cout << comandos2 << endl;
 		   	// cout << params2 << endl;
 
-		   	//pipe  
+		   	//pipe
 
 		   	// int zelda[2];
 		   	// pid_t pid;
@@ -149,7 +150,7 @@ int main() {
 			   //  close(zelda[0]);
 			   //  close(zelda[1]);
 			   //  execlp(comandos, comandos, params, (char *)0);
-			    
+
 			   //  die("execlp");
 	    	// }else{
 	    	// 	close(zelda[1]);
@@ -161,7 +162,7 @@ int main() {
     	/*********************************
 	   	 *	FIN PARTE DEL PIPE           *
 	   	 *********************************/
-	   	
+
 	   	// for (int i = 0; i < viktor.size(); ++i)
 	   	// {
 	   	// 	if(i == 0)
@@ -170,11 +171,11 @@ int main() {
 	   	// 		parseCommand(viktor.at(i), delim, NULL, &comandos2);
 	   	// }
 	   	}else if(isRedirect){
-			
+
 	   		char** commandArray = new char*[4];
 
 			char* commandRedirect;
-	   		char* argumentRedirect; 
+	   		char* argumentRedirect;
 	   		char* operatorType;
 	   		char* fileName;
 
@@ -183,17 +184,17 @@ int main() {
 	   		operatorType = strtok(NULL	, " ");
 
 	   		if (argumentRedirect[0] == '>' || argumentRedirect[0] == '2' ){
-	   			
+
 	   			commandArray[0] = commandRedirect;
 	   			commandArray[1] = argumentRedirect;
 	   			commandArray[2] = operatorType;
-	   			
 
 
-	   		
+
+
 
 	   		}else {
-				fileName = strtok(NULL	, " ");	   			
+				fileName = strtok(NULL	, " ");
 	   			commandArray[0] = commandRedirect;
 	   			commandArray[1] = argumentRedirect;
 	   			commandArray[2] = operatorType;
@@ -205,7 +206,7 @@ int main() {
 
 
 
-	   		
+
 	   		//liberando espacio
 	   		delete commandArray;
 
@@ -231,22 +232,40 @@ int main() {
 						fclose(fd);
 						fclose(fd1);
 					}
-			   	}else if(strcmp(comando, "cd") == 0){
+			   	} else if(strcmp(comando, "cd") == 0){
 			   		if(chdir(param) < 0) {
 			   			cout<< "Error cd" <<endl;
 			   		}
-			   	}else if ((pid = fork()) == 0) {
-					execlp(comando, comando, param, NULL);
+			   	} else if ((pid = fork()) == 0) {
+						if (strcmp(comando, "mi_pos") == 0) {
+							std::ostringstream oss;
+							comando = "cat";
+							string processDirectory = "/proc/";
+							string status = "/status";
+							pid = getppid();
+							oss << pid;
+							string processId = "";
+							processId += oss.str();
+							processDirectory += processId;
+							processDirectory += status;
+							cout << processDirectory << endl;
+							char processStateDirectory[processDirectory.length()];
+							param = "";
+							strcpy(param, processStateDirectory);
+							execlp(comando, comando, param, NULL);
+						} else {
+							execlp(comando, comando, param, NULL);
+						}
 			   	}else if((pid = fork())!=0){
 			   		wait(NULL);
 			   	}
 			}else {
 			   	// cout << "error prrin" <<endl;
 			}
-					    	
-			   	
+
+
 		}
-		
+
 
 
 	}
@@ -311,7 +330,7 @@ void parseCommand(string commandString, string delim, vector<string>* viktor, ch
 	char** retVal;
 	int cont = 0;
 	// if(delim != " "){
-	   	
+
 	   	while((pos = commandString.find(delim)) != string::npos){
 	   		token = commandString.substr(0, pos);
 	   		viktor->push_back(token);
