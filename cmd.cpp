@@ -240,20 +240,21 @@ int main() {
 						if (strcmp(comando, "mi_pos") == 0) {
 							std::ostringstream oss;
 							comando = "cat";
+							cout << comando << endl;
 							string processDirectory = "/proc/";
 							string status = "/status";
-							pid = getppid();
-							oss << pid;
+
+							int pid2 = getppid();
+							oss << pid2;
 							string processId = "";
 							processId += oss.str();
 							processDirectory += processId;
 							processDirectory += status;
-							cout << processDirectory << endl;
-							char processStateDirectory[processDirectory.length()];
-							param = "";
-							strcpy(param, processStateDirectory);
-							execlp(comando, comando, param, NULL);
+							param = const_cast<char*>(processDirectory.c_str());
+							execlp(comando, comando, param, NULL );
 						} else {
+							cout << comando << endl;
+							cout << param << endl;
 							execlp(comando, comando, param, NULL);
 						}
 			   	}else if((pid = fork())!=0){
