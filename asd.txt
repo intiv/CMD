@@ -1,33 +1,6 @@
-total 112
--rw-rw-r-- 1 intiv intiv     0 mar 30 16:03 >>
--rw-rw-r-- 1 intiv intiv    42 mar 30 17:03 asd.txt
--rwxrwxr-x 1 intiv intiv 44952 mar 30 17:06 cmd
--rw-rw-r-- 1 intiv intiv 12449 mar 30 17:06 cmd.cpp
--rwxrwxr-x 1 intiv intiv 43704 mar 30 14:40 cmdUbuntu
--rw-rw-r-- 1 intiv intiv    31 mar 26 16:13 hola.txt
-total 112
--rw-rw-r-- 1 intiv intiv     0 mar 30 16:03 >>
--rw-rw-r-- 1 intiv intiv   316 mar 30 17:06 asd.txt
--rwxrwxr-x 1 intiv intiv 44952 mar 30 17:06 cmd
--rw-rw-r-- 1 intiv intiv 12449 mar 30 17:06 cmd.cpp
--rwxrwxr-x 1 intiv intiv 43704 mar 30 14:40 cmdUbuntu
--rw-rw-r-- 1 intiv intiv    31 mar 26 16:13 hola.txt
->>
+a.out
 asd.txt
 cmd
 cmd.cpp
 cmdUbuntu
 hola.txt
->>
-asd.txt
-cmd
-cmd.cpp
-cmdUbuntu
-hola.txt
-total 112
--rw-rw-r-- 1 intiv intiv     0 mar 30 16:03 >>
--rw-rw-r-- 1 intiv intiv   716 mar 30 17:24 asd.txt
--rwxrwxr-x 1 intiv intiv 44952 mar 30 17:06 cmd
--rw-rw-r-- 1 intiv intiv 12299 mar 30 17:11 cmd.cpp
--rwxrwxr-x 1 intiv intiv 43704 mar 30 14:40 cmdUbuntu
--rw-rw-r-- 1 intiv intiv    31 mar 26 16:13 hola.txt

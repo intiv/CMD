@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <termios.h>
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
@@ -17,11 +18,13 @@ void piping(char**, char**);
 void parseCommand(string, string , vector<string>*, char** *);
 char** parseCommand2 (string);
 void redirect(char**);
+char getcharacter();
+void autocompletar(string*);
 
 int main() {
 	int status;
-
-	char linea[50];
+	string linea1;
+	char* linea;
 	string tempLinea;
 	char *comandos;
 	char *comandos2;
@@ -38,17 +41,56 @@ int main() {
 	bool isRedirect;
 	bool piped = false;
 	vector<string> viktor;
+	bool emptyline = true;
 	while (1) {
 
 		isRedirect = false;
 		isPipe = false;
 	   	comando = NULL;
 	   	param = NULL;
-	   	cin.clear();
-		fflush(stdin);
-	   	memset(linea, 0, sizeof(linea));
+	   	linea1 = "";
+
 		cout << ">";
-	   	cin.getline(linea, 50);
+		cin.clear();
+		fflush(stdin);
+
+		if(!emptyline){
+			memset(linea, 0, sizeof(linea));
+		}
+		char t = 0;
+		bool autocomplete = false;
+		while(true){
+			t = getcharacter();
+			if(t == '\t'){
+				autocomplete = true;
+
+				break;
+			}else if(t == '\n'){
+				autocomplete = false;
+				break;
+
+			}else{
+				linea1 += t;
+			}
+		}
+
+		cout << endl;
+		if(autocomplete){
+			autocompletar(&linea1);
+			cout << ">"<<linea1;
+			t = 0;
+			while(true){
+				t = getcharacter();
+				if(t == '\n'){
+					break;
+				}else{
+					linea1 += t;
+				}
+			}
+		}
+	   	// cin.getline(linea, 50);
+	   	linea = const_cast<char*>(linea1.c_str());
+	   	emptyline = false;
 	   	tempLinea = linea;
 	   	if (!tempLinea.empty()){
 	   		for (int i = 0; i < 50; ++i){
@@ -247,6 +289,7 @@ void redirect(char** commands){
     		escribir << foo;
     		escribir.close();
     		execlp("echo", "echo", NULL);
+    		execlp("rm", "askdhad", NULL);
 		}else if((pid = fork()) == 0){
 			dup2(fds[1], 1);
 			close(fds[0]);
@@ -366,3 +409,64 @@ char** parseCommand2 (string buffer) {
   	}
   	return sentences;
 }
+
+
+char getcharacter(){
+    /*#include <unistd.h>   //_getch*/
+    /*#include <termios.h>  //_getch*/
+    char buf=0;
+    struct termios old={0};
+    fflush(stdout);
+    if(tcgetattr(0, &old)<0)
+        perror("tcsetattr()");
+    old.c_lflag&=~ICANON;
+    old.c_lflag&=~ECHO;
+    old.c_cc[VMIN]=1;
+    old.c_cc[VTIME]=0;
+    if(tcsetattr(0, TCSANOW, &old)<0)
+        perror("tcsetattr ICANON");
+    if(read(0,&buf,1)<0)
+        perror("read()");
+    old.c_lflag|=ICANON;
+    old.c_lflag|=ECHO;
+    if(tcsetattr(0, TCSADRAIN, &old)<0)
+        perror ("tcsetattr ~ICANON");
+    if(buf != '\t')
+    	printf("%c",buf);
+    return buf;
+ }
+
+ void autocompletar(string* line){
+ 	string lineaF;
+ 	int lsize = line->size();
+ 	ifstream comandos("comandos.txt");
+ 	vector<string> validCommands;
+ 	if(comandos){
+ 		getline(comandos, lineaF);
+ 		while(!comandos.eof()){
+ 			if(lineaF.size() >= lsize){
+	 			if(lineaF.substr(0, lsize) == *line){
+	 				validCommands.push_back(lineaF);
+	 			}
+ 			}
+ 			getline(comandos, lineaF);
+ 		}
+ 		if(validCommands.size() == 2 && validCommands.at(0) == validCommands.at(1)){
+ 			cout << "line = "<<validCommands.at(0)<<endl;
+ 			*line = validCommands.at(0);
+ 		}else if(validCommands.size() > 0){
+ 			cout << validCommands.at(0);
+ 			for (int i = 1; i < validCommands.size(); ++i){
+ 				cout <<"  "<< validCommands.at(i);
+ 			}
+ 			cout << endl;
+ 		}else{ //0 comandos
+ 			*line = "";
+ 			cout << "No hay un comando al cual autocompletar a partir de " << *line <<endl;
+ 		}
+ 		comandos.close();
+ 	}else{
+ 		*line = "";
+ 		cout << "Error obteniendo lista de comandos"<<endl;
+ 	}
+ }
