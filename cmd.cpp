@@ -173,7 +173,7 @@ int main() {
 			   			cout<< "Error cd" <<endl;
 			   		}
 			   	} else if ((pid = fork()) == 0) {
-						if (strcmp(comando, "mi_pos") == 0) {
+						if (strcmp(comando, "mi_ps") == 0) {
 							std::ostringstream oss;
 							comando = "cat";
 							string processDirectory = "/proc/";
